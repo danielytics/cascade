@@ -58,21 +58,21 @@ INSTRUCTION(add_a, {
 ```
 This is compiled to:
 ```asm
-# a[0] + a[1]; a is xmm0
-    dc40:	vmovshdup xmm4,xmm0             # xmm4[0] will contain xmm0[1], ie a[1]
-    dc44:	vaddps xmm4,xmm0,xmm4           # xmm4[0] = xmm4[0] + xmm0[0], essentially xmm4[0] = a[0] + a[1]
-# xmm5 = 0
+; a[0] + a[1]; a is xmm0
+    dc40:	vmovshdup xmm4,xmm0             ; xmm4[0] will contain xmm0[1], ie a[1]
+    dc44:	vaddps xmm4,xmm0,xmm4           ; xmm4[0] = xmm4[0] + xmm0[0], essentially xmm4[0] = a[0] + a[1]
+; xmm5 = 0
     dc48:	vxorps xmm5,xmm5,xmm5
-# Pop a[1]: shift a[2..3] up by one, leaving 0 in a[3] 
-    dc4c:	vblendps xmm0,xmm0,xmm5,0x3     # set the first two elements of xmm0 to 0 (xmm5): [0, 0, c, d]
-    dc52:	vshufps xmm0,xmm0,xmm0,0x38     # shift the bottom two values up and set lowest to 0: [0, c, d, 0] 
-    dc57:	vblendps xmm0,xmm0,xmm4,0x1     # set the first element to the result: [result, c, d, 0]
-# Dispatch logic (read next instruction addr, increment instruction pointer, jump to addr)
-    dc5d:	movzx  eax,BYTE PTR [rdi]       # Read the next instruction, eax contains the instruction bytecode (an offset into the instruction_table)
-    dc60:	lea    r9,[rip+0x1a1c1]         # Get the base address of the instructions_table
-    dc67:	mov    rax,QWORD PTR [r9+rax*8] # Read the address of the next instruction from the instruction_table (base + bytecode/offset)
-    dc6b:	inc    rdi                      # Increment instruction pointer, advancing to next instruction
-    dc6e:	jmp    rax                      # Jump to the next instructions code
+; Pop a[1]: shift a[2..3] up by one, leaving 0 in a[3] 
+    dc4c:	vblendps xmm0,xmm0,xmm5,0x3     ; set the first two elements of xmm0 to 0 (xmm5): [0, 0, c, d]
+    dc52:	vshufps xmm0,xmm0,xmm0,0x38     ; shift the bottom two values up and set lowest to 0: [0, c, d, 0] 
+    dc57:	vblendps xmm0,xmm0,xmm4,0x1     ; set the first element to the result: [result, c, d, 0]
+; Dispatch logic (read next instruction addr, increment instruction pointer, jump to addr)
+    dc5d:	movzx  eax,BYTE PTR [rdi]       ; Read the next instruction, eax contains the instruction bytecode (an offset into the instruction_table)
+    dc60:	lea    r9,[rip+0x1a1c1]         ; Get the base address of the instructions_table
+    dc67:	mov    rax,QWORD PTR [r9+rax*8] ; Read the address of the next instruction from the instruction_table (base + bytecode/offset)
+    dc6b:	inc    rdi                      ; Increment instruction pointer, advancing to next instruction
+    dc6e:	jmp    rax                      ; Jump to the next instructions code
 ```
 This ipmlements the add operation directly, then using SSE shuffle and blend instructions to arrange the stack into the shape that the `pop, pop, push` would have left it in.
 
@@ -89,14 +89,14 @@ INSTRUCTION(add, {
 ```
 This is compiled to:
 ```asm
-# Add a[0] (xmm0) and b[0] (xmm1)
+; Add a[0] (xmm0) and b[0] (xmm1)
     d730:	vaddss xmm0,xmm0,xmm1
-# xmm4 = 0
+; xmm4 = 0
     d734:	vxorps xmm4,xmm4,xmm4
-# b.pop() ie shift b by one element and zero the last
-    d738:	vblendps xmm1,xmm1,xmm4,0x1 # Set top to 0: [a, b, c, d] => [0, b, c, d]
-    d73e:	vshufps xmm1,xmm1,xmm1,0x39 # Rotate to shift everything up: [b, c, d, 0]
-# Dispatch logic, same as before
+; b.pop() ie shift b by one element and zero the last
+    d738:	vblendps xmm1,xmm1,xmm4,0x1 ; Set top to 0: [a, b, c, d] => [0, b, c, d]
+    d73e:	vshufps xmm1,xmm1,xmm1,0x39 ; Rotate to shift everything up: [b, c, d, 0]
+; Dispatch logic, same as before
     d743:	movzx  eax,BYTE PTR [rdi]
     d746:	lea    r9,[rip+0x1a6db]
     d74d:	mov    rax,QWORD PTR [r9+rax*8]
@@ -156,14 +156,14 @@ This is compiled to:
     e850:	movzx  eax,WORD PTR [rdi]
     e853:	vmovd  xmm0,eax
     e857:	vpbroadcastd xmm0,xmm0
-    e85c:	vpsrlvd xmm4,xmm0,XMMWORD PTR [rip+0xf7eb]        # 1e050 <_IO_stdin_used+0x50>
+    e85c:	vpsrlvd xmm4,xmm0,XMMWORD PTR [rip+0xf7eb]
     e865:	vextractf128 xmm5,ymm3,0x1
     e86b:	vpermilps xmm6,xmm3,xmm4
-    e870:	vpsllvd xmm0,xmm0,XMMWORD PTR [rip+0xf7e7]        # 1e060 <_IO_stdin_used+0x60>
+    e870:	vpsllvd xmm0,xmm0,XMMWORD PTR [rip+0xf7e7]
     e879:	vpermilps xmm4,xmm5,xmm4
     e87e:	vblendvps xmm0,xmm6,xmm4,xmm0
     e884:	movzx  eax,BYTE PTR [rdi+0x2]
-    e888:	lea    r9,[rip+0x19599]        # 27e28 <instructions_table>
+    e888:	lea    r9,[rip+0x19599]
     e88f:	mov    rax,QWORD PTR [r9+rax*8]
     e893:	add    rdi,0x3
     e897:	jmp    rax
