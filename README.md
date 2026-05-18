@@ -10,6 +10,16 @@ It is based on an idea that I believe to be pretty novel:
 
 The hypothesis was that by using SIMD registers to hold the stacks, we can achieve high performance as no actual memory is accessed for stack operations.
 
+## Run
+
+Install [Tup](https://gittup.org/tup/), Clang, `libc++`
+
+```bash
+tup variant builds/*.config
+tup
+build-dev/casm example.cb
+```
+
 ## Virtual Machine notes
 
 The design uses four small stacks:
