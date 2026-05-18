@@ -240,6 +240,9 @@ execute(env, {
 # Current Status
 
 Most insturcitons are implemented: stack, arithmetic, shadow stack, control flow, FFI.
+
 Math and Text FFI functions are implemented
+
 Memory functions, collections, and vector instructions were never implemented.
+
 The assembler mostly works, but is missing some features: currently it can output the bytecode to stdio for debugging, but not save it to file, only assemble-and-execute directly. Also, as far as I can remember, while directives exist to insert data into the bytecode, there's no way to actually access it.
