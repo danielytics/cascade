@@ -221,3 +221,25 @@ Slots:
 Ok.
 ```
 Stack `c` contains: `2 0 0 0`
+
+It is also possible to assemble instructions directly in C++:
+
+```c++
+execute(env, {
+    native, FUNC(txt_create),
+    set_loop, 10, 0,
+        dup_a, // Make copy of text handle
+        push_a, CONST('x'),
+        native, FUNC(txt_putch), // Putch character into text
+    end_loop,
+    native, FUNC(txt_print), // Print result
+    end,
+  }, {constants.data(), constants.size()});
+```
+
+# Current Status
+
+Most insturcitons are implemented: stack, arithmetic, shadow stack, control flow, FFI.
+Math and Text FFI functions are implemented
+Memory functions, collections, and vector instructions were never implemented.
+The assembler mostly works, but is missing some features: currently it can output the bytecode to stdio for debugging, but not save it to file, only assemble-and-execute directly. Also, as far as I can remember, while directives exist to insert data into the bytecode, there's no way to actually access it.
