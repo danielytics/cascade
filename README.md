@@ -175,15 +175,16 @@ Most operations are similar: direct SSE operations for arithmetic and logic, shu
 
 The hypothesis was that by keeping all stack operations in machine registers by leveraging wide SIMD registers to keep multiple values of a stack in registers, that performance would be very good.
 There were a number of hurdles with this approach:
-1. Implementing this in C++ meant relying on musttail and calling conventions. That meant that in order to keep data in registers without spilling, insturctions are limited to ~6 scalar values and ~6 vector values.
+1. Implementing this in C++ meant relying on `musttail` support and calling conventions. That meant that in order to keep data in registers without spilling, insturctions are limited to ~6 scalar values and ~6 vector values. This could be overcome by using computed goto, but then the code becomes less modular as all labels must be implemented inside a single function.
 2. The original plan was to use AVX instructions for the primary stacks, allowing 8 32bit values per stack. The original design fused two together for a 16 deep stack. However, due to how x86_64 implements 256bit registers as two indedependent lanes, this apporach turned out to be a dead end: you cannot easily cross the lane boundaries between the two 128bit halves. For example, shifting would shift each lane separately without crossing.
+
 Given these restrictions, using SSE for main operations and AVX only for additional temp space was the simpler and more efficient approach.
 
-The rich instruction set means that most insturcitons are very efficient, however a few things became clear on profiling and testing:
+The rich instruction set means that most insturcitons are single purpose and very efficient, however a few things became clear on profiling and testing:
 1. Instructions being so efficient meant they are dominated by the dispatch overhead
-2. A rich instruction set meant few conditional branches (good!) but many more instructions leading to more icache misses (bad!)
+2. A rich instruction set meant no decode overhead (good!) and few conditional branches (good!), but many more instructions leading to more i-cache misses (bad!)
 
-Ultimately, the VM performance is limited by icache misses and dispatch overhead. Its fast, but not as fast as I'd hoped.
+Ultimately, the VM performance is limited by i-cache misses and dispatch overhead. A sersious VM probably shouldn't use this approach.
 
 ## Assembler
 
