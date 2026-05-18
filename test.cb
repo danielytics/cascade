@@ -1,0 +1,33 @@
+RUN: main
+FUNC: main {
+    push_a 10
+    push_b 10
+    cmp_gt
+    when_not {
+        push_b 1
+    }
+    push4_c 1 2 3 4
+    shuf_c 0:1:3:2
+    push4_a 1 2 3 4
+    shadow_store_a
+    shadow_copy_s0_s1
+    push4_a 5 6 7 8
+    shadow_store_a
+    clear_a
+    shadow_blend 02:10:11:00
+    push_a 3
+    set_loop_a {
+        push_counter_b
+        add
+    }
+    addi 1
+    debug
+    call add2
+    end
+}
+FUNC: add2 {
+    addi 2
+    ret
+}
+BYTES: zeros { 0 0 0 0 0 }
+DATA: numbers { 1 2 3 4 5 }

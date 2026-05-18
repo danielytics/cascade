@@ -1,0 +1,32 @@
+.gitignore
+
+PROJECT_ROOT = $(TUP_CWD)
+
+##################################################
+# Build
+##################################################
+
+COMPILE_CPP = clang++
+LINK = clang++
+
+# CPP_FLAGS += -msse4.1 -mfma -mavx2 -mpopcnt -stdlib=libc++ -O1 -D_DEBUG -g  -std=c++20
+# LINKER_FLAGS += -rdynamic -stdlib=libc++ -D_DEBUG -g -O1
+CPP_FLAGS += -msse4.1 -mfma -mavx2 -mpopcnt -stdlib=libc++ -O3 -ffast-math -flto  -std=c++20 -g
+#-DENABLE_TRACING
+LINKER_FLAGS += -rdynamic -stdlib=libc++ -Ofast -flto -g
+#CPP_FLAGS += -msse4.1 -mfma -mavx2 -mpopcnt -stdlib=libc++ -Ofast -flto  -std=c++20
+#LINKER_FLAGS += -rdynamic -stdlib=libc++ -Ofast -flto
+
+##################################################
+
+# Third party dependencies
+DEPENDENCIES = $(PROJECT_ROOT)/sdk/thirdparty
+INCLUDES += -I$(DEPENDENCIES)/magic_enum/include
+INCLUDES += -I$(DEPENDENCIES)/spdlog/include
+INCLUDES += -I$(_DEPENDENCIES)/taskflow
+INCLUDES += -I$(DEPENDENCIES)/toml11
+INCLUDES += -I$(DEPENDENCIES)/parallel-hashmap
+
+# Macros
+!compile = |> $(COMPILE_CPP) $(CPP_FLAGS) $(INCLUDES) -c %f -o %o |> %f.o
+!link = |> $(LINK) %f $(LINKER_FLAGS) -o %o |>

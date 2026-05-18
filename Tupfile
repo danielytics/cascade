@@ -1,0 +1,14 @@
+include_rules
+
+: foreach src/vm/*.cpp |> !compile |> %f.o | {OBJ_VM}
+: src/testbed.cpp |> !compile |> %f.o | {OBJ_TESTBED}
+: src/assembler.cpp |> !compile |> %f.o | {OBJ_ASM}
+
+: foreach src/flow/*.cpp |> !compile |> %f.o | {OBJ_FLOW}
+
+: {OBJ_VM} {OBJ_TESTBED} |> !link |> testbed | {BIN_TESTBED}
+: {OBJ_VM} {OBJ_ASM} |> !link |> casm | {BIN_CASM}
+: {BIN_TESTBED} |> objdump -d -M intel --no-show-raw-insn %f > %o |> testbed.s
+
+: {OBJ_FLOW} |> !link |> flow | {BIN_FLOW}
+: {BIN_FLOW} |> objdump -d -M intel --no-show-raw-insn %f > %o |> flow.s
