@@ -1,0 +1,16 @@
+RUN: main
+FUNC: main {
+    push2_a 12 10
+    push2_b 10 10
+    ; Push 1 to c if a.pop() > b.pop() [10 > 10, false]
+    cmp_gt
+    when {
+        push_c 1
+    }
+    ; Push 1 to c if a.pop() > b.pop() [12 > 10, true]
+    cmp_gt
+    when {
+        push_c 2
+    }
+    end
+}

@@ -106,7 +106,7 @@ INSTRUCTION(shadow_blend, {
     __m128 s0 = shadow.get<0>();
     __m128 s1 = shadow.get<1>();
 
-    // Use permutevar to rearrange elements in a and b
+    // Use permutevar to rearrange elements in s0 and s1
     __m128 perm_a = _mm_permutevar_ps(s0, permute_mask);
     __m128 perm_b = _mm_permutevar_ps(s1, permute_mask);
 
@@ -118,7 +118,7 @@ INSTRUCTION(shadow_blend, {
         (control & 0x4000) ? -1 : 0    // Upper 2 bits of the control for the 4th element
     ));
 
-    // Blend permuted a and b based on the blend mask (using the sign bit of blend_mask)
+    // Blend permuted s0 and s1 based on the blend mask (using the sign bit of blend_mask)
     ra = _mm_blendv_ps(perm_a, perm_b, blend_mask);
     NEXT();
 })
