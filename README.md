@@ -8,7 +8,7 @@ It is based on an idea that I believe to be pretty novel:
 3. The stacks are kept entirely in machine registers using SSE and AVX
 4. A rich instruction set means that instructions are very close to native (very little overhaed, no instruction decoding, few conditional branches)
 
-The hypothesis was that by using SIMD registers to hold the stacks, we can achieve high performance as no actual memory is accessed for stack operations.
+The hypothesis was that by using SIMD registers to hold the stacks, we can achieve high performance as no actual memory is accessed for stack operations, instead operating entirely on registers.
 
 ## Run
 
